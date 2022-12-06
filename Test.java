@@ -2,7 +2,7 @@
 public class Test{
     public static void main(String[] args){
         long startTime = System.nanoTime();
-        Filters filters = new Filters(11, 96);
+        Filters filters = new Filters(11, 96, -1.0, 3.0);
         for(int i = 0; i < filters.depth; i++)
         {
             for(int j = 0; j < filters.m; j++)
