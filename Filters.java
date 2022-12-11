@@ -18,6 +18,7 @@ public class Filters{
                     filter[i][j%m] = Math.round(randoms[j]);
                 }
             }
+            filter[m%2][m%2] = upperBound;
             appliedFilters.add(filter);
         }
     }
