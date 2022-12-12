@@ -1,2 +1,2 @@
-# Neural-Network-Representation
+    # Neural-Network-Representation
 Java manual implementation of the 2D CNN 
