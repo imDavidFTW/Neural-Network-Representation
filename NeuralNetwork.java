@@ -5,6 +5,7 @@
 //The result of the weights at the end of training will 
 //be the neural network used for testing 
 public class NeuralNetwork {
+    
     public Neuron[] Layer(int numOfNeurons, int prevLayerSize){
         Neuron[] layer = new Neuron[numOfNeurons];
         for(int i = 0; i < numOfNeurons; i++){
@@ -12,4 +13,13 @@ public class NeuralNetwork {
         }
         return layer;
     }
+    public Neuron[][] hiddenLayer(int numOfLayers, int neuronsPerLayer){
+        Neuron[][] layers = new Neuron[numOfLayers][neuronsPerLayer];
+        for(int i = 0; i < numOfLayers; i++){
+            layers[i] = Layer(neuronsPerLayer, neuronsPerLayer);
+        }
+        return layers;
+    }
+        
+
 }
