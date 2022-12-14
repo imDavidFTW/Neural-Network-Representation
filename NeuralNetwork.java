@@ -13,10 +13,10 @@ public class NeuralNetwork {
         }
         return layer;
     }
-    public Neuron[][] hiddenLayer(int numOfLayers, int neuronsPerLayer){
-        Neuron[][] layers = new Neuron[numOfLayers][neuronsPerLayer];
-        for(int i = 0; i < numOfLayers; i++){
-            layers[i] = Layer(neuronsPerLayer, neuronsPerLayer);
+    public Neuron[][] hiddenLayer(int numOfLayers, int[] neuronsPerLayer){
+        Neuron[][] layers = new Neuron[numOfLayers][neuronsPerLayer.length];
+        for(int i = 1; i < numOfLayers; i++){
+            layers[i] = Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1]);
         }
         return layers;
     }
