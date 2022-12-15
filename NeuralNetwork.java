@@ -7,10 +7,16 @@
 public class NeuralNetwork {
     
     public Neuron[] Layer(int numOfNeurons, int prevLayerSize){
-        Neuron[] layer = new Neuron[numOfNeurons];
+        Neuron[] layer = new Neuron[numOfNeurons + 1];
         for(int i = 0; i < numOfNeurons; i++){
-            layer[i] = new Neuron(prevLayerSize);
+            layer[i] = new Neuron(prevLayerSize + 1);
         }
+        layer[numOfNeurons] = new Neuron(numOfNeurons);
+        double bias = layer[numOfNeurons].weights[0];
+        for(int i = 1; i < layer[numOfNeurons].weights.length; i++){
+            layer[numOfNeurons].weights[i] = bias;
+        }
+        layer[numOfNeurons].output = 1;
         return layer;
     }
     public Neuron[][] hiddenLayer(int numOfLayers, int[] neuronsPerLayer){
@@ -21,6 +27,7 @@ public class NeuralNetwork {
         }
         return layers;
     }
-        
+    
+
 
 }
