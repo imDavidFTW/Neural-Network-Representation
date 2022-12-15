@@ -28,6 +28,15 @@ public class NeuralNetwork {
         return layers;
     }
     
-
+    public static Neuron[] booleanMatrixToInputLayer(Matrix<Boolean> m){
+        Neuron[] inputLayer = new Neuron[m.getRows()*m.getColumns()];
+        int counter = 0;
+        for(int i = 0; i < m.getRows(); i++){
+            for(int j = 0; j < m.getColumns(); j++){
+                inputLayer[counter++] = new Neuron(0, m.get(i, j) ? 1 : 0);
+            }
+        }
+        return inputLayer;
+    }
 
 }

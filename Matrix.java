@@ -8,11 +8,23 @@ import java.io.IOException;
 //to extract important features from the image
 public class Matrix<T> {
     T[][] matrix;
+    int m;
+    int n;
 
     public Matrix(int m, int n) {
         matrix = (T[][]) new Object[m][n];
+        this.m = m;
+        this.n = n;
     }
 
+    public int getRows(){
+        return m;
+    }
+
+    public int getColumns(){
+        return n;
+    }
+    
     public T get(int i, int j) {
         return matrix[i][j];
     }

@@ -9,5 +9,12 @@ public class Neuron {
             this.input = 0;
             this.output = 0;
     }
+
+    //Overloaded constructor for the input layer
+    public Neuron(int numOfWeights, int output){
+        this.weights = ThreadLocalRandom.current().doubles(numOfWeights, 0, 1).toArray();
+        this.input = 0;
+        this.output = output;
+    }
     
 }
