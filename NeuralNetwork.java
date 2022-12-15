@@ -15,6 +15,7 @@ public class NeuralNetwork {
     }
     public Neuron[][] hiddenLayer(int numOfLayers, int[] neuronsPerLayer){
         Neuron[][] layers = new Neuron[numOfLayers][neuronsPerLayer.length];
+        layers[0] = Layer(neuronsPerLayer[0], 0);
         for(int i = 1; i < numOfLayers; i++){
             layers[i] = Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1]);
         }
