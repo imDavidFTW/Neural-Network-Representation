@@ -13,10 +13,11 @@ public class Layer {
         this.bias = Math.random();
     }
 
-    public static Layer[] hiddenLayers(int numOfLayers, int[] neuronsPerLayer, Matrix<Boolean> m){
-        Layer[] layers = new Layer[numOfLayers];
+    public static Layer[] hiddenLayers(int[] neuronsPerLayer, Matrix<Boolean> m){
+        int length = neuronsPerLayer.length;
+        Layer[] layers = new Layer[length];
         layers[0] = new Layer(m);
-        for(int i = 1; i < numOfLayers; i++){
+        for(int i = 1; i < length; i++){
             layers[i] = new Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1]);
         }
         return layers;
