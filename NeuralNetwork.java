@@ -11,7 +11,7 @@ public class NeuralNetwork {
     public double totalLoss;// Here we use loss because of the softMax function 
     private double[] expectedResultsForInput = new double[] {0, 0, 0, 0, 0, 
                                                             0, 0, 0, 0, 0, 0};
-    public int cur;//the current index we are at in the batch. Ex. batch size is 15 images. At cur == 8 we have done 8/15 forward propegations. Once we hit 15 we do back propegation
+    private int cur;//the current index we are at in the batch. Ex. batch size is 15 images. At cur == 8 we have done 8/15 forward propegations. Once we hit 15 we do back propegation
     public double[][] Loss;//matrix containing the loss for each forward pass of a batch
     public double[][] CrossEntropyLoss_SoftMaxDerivativeMatrix;//Cross entropy loss derivative for the back propegation
 
@@ -53,7 +53,7 @@ public class NeuralNetwork {
             lastNeuronLayer[i].output = Math.exp(lastNeuronLayer[i].input) / sumExpOutputs;
         }
         Loss[cur] = loss(this.layers[layers.length - 1], inputVal);
-        softMaxCrossEntropyDer(batchSize, inputVal);
+        softMaxCrossEntropyDer(batchSize, cur);
         expectedResultsForInput = new double[] {0, 0, 0, 0, 0, 
             0, 0, 0, 0, 0, 0};
     }
@@ -67,7 +67,7 @@ public class NeuralNetwork {
         double[] Loss = new double[length];
         this.expectedResultsForInput[inputVal] = 1.0;
         for(int i = 0; i < length; i++){
-            if(outputLayer.layer[i].output == 0){
+            if(outputLayer.layer[i].output == 0){//in a case the output is 0
                 totalLoss += -Math.log(0.0000001) * this.expectedResultsForInput[i];
                 Loss[i] = -Math.log(0.0000001) * this.expectedResultsForInput[i];
             }
@@ -75,7 +75,9 @@ public class NeuralNetwork {
                 totalLoss += -Math.log(outputLayer.layer[i].output) * this.expectedResultsForInput[i];
                 Loss[i] = -Math.log(outputLayer.layer[i].output) * this.expectedResultsForInput[i];
             }
+            System.out.println(expectedResultsForInput[i]);
         }
+        System.out.println();
         return Loss;
     }
 
@@ -89,11 +91,11 @@ public class NeuralNetwork {
 
     public void trainNetwork(int networkSize, String path, int batchSize){
         for(int i = 0; i < batchSize; i++)
-            this.ForwardPropegation(networkSize, cur, path);
+            this.ForwardPropegation(networkSize, 0, path);
     }
 
     public static void main(String[] args){
-        int[] NPL = new int[]{28, 40, 30, 20, 10};
+        int[] NPL = new int[]{28, 76, 108, 36, 10};
         Matrix<Boolean> m = Matrix.ImageToBooleanMatrix("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
         Layer[] layers = Layer.hiddenLayers(NPL, m);
         NeuralNetwork n = new NeuralNetwork(layers, 3);
