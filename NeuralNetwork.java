@@ -5,30 +5,37 @@
 //The result of the weights at the end of training will 
 //be the neural network used for testing 
 public class NeuralNetwork {
+    
     public Layer[] layers;
-    private double[] softmaxLayer = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };// Use this to store the values obtained
-                                                                               // from the softmax function
-    // public double error;
-    // private double[] expectedResultsForInput = new double[] {0.01, 0.01, 0.01,
-    // 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
+    public int networkSize;//gives how many layers the network has
+    public double totalLoss;// Here we use loss because of the softMax function 
+    private double[] expectedResultsForInput = new double[] {0, 0, 0, 0, 0, 
+                                                            0, 0, 0, 0, 0, 0};
+    public int cur;//the current index we are at in the batch. Ex. batch size is 15 images. At cur == 8 we have done 8/15 forward propegations. Once we hit 15 we do back propegation
+    public double[][] Loss;//matrix containing the loss for each forward pass of a batch
+    public double[][] CrossEntropyLoss_SoftMaxDerivativeMatrix;//Cross entropy loss derivative for the back propegation
 
-    public NeuralNetwork(Layer[] layers) {
-
+    public NeuralNetwork(Layer[] layers, int batchSize) {
+        this.layers = layers;
+        this.CrossEntropyLoss_SoftMaxDerivativeMatrix = new double[batchSize][layers[layers.length - 1].layer.length];
+        this.Loss = new double[batchSize][layers[layers.length - 1].layer.length];
+        this.networkSize = layers.length;
+        this.totalLoss = 0;
+        this.cur = 0;
     }
 
     // For more clarification go to power point 7 I sent you
-    private void ForwardPropegation() {
+    private void ForwardPropegation(int batchSize, int inputVal, String path) {
         // For the input of each neuron sum the weights times the outputs of the
         // previous neurons plus the bias
         // For the output of each neuron use the sigmoid activation function
         // 1/(1+e^(-x)) with x being the input value calculated
-        // Then calculate your values for the double[] softmaxLayer using the softmax
-        // function and the output values from last layer of the NN
-        // Softmax makes a vector of probabilites
+        // Then calculate your values for the output values for last layer of the NN (Softmax makes a vector of probabilites)
+        Matrix<Boolean> m = Matrix.ImageToBooleanMatrix(path);
         for (int i = 1; i < layers.length; i++) {
             for (Neuron n : layers[i].layer) {
                 Neuron[] prevNeuronLay = layers[i - 1].layer;
-                for (int j = 0; j < prevNeuronLay.length; i++) {
+                for (int j = 0; j < prevNeuronLay.length; j++) {
                     n.input += prevNeuronLay[j].output * n.weights[j];
                 }
                 n.input += layers[i - 1].bias;
@@ -42,26 +49,70 @@ public class NeuralNetwork {
         for (Neuron n : lastNeuronLayer) {
             sumExpOutputs += Math.exp(n.input);
         }
-        for (int i = 0; i < softmaxLayer.length; i++) {
-            softmaxLayer[i] = Math.exp(lastNeuronLayer[i].output) / sumExpOutputs;
+        for (int i = 0; i < lastNeuronLayer.length; i++) {
+            lastNeuronLayer[i].output = Math.exp(lastNeuronLayer[i].input) / sumExpOutputs;
         }
+        Loss[cur] = loss(this.layers[layers.length - 1], inputVal);
+        softMaxCrossEntropyDer(batchSize, inputVal);
+        expectedResultsForInput = new double[] {0, 0, 0, 0, 0, 
+            0, 0, 0, 0, 0, 0};
     }
 
-    /*
-     * private void BackWardPropegation(){
-     * 
-     * }
-     * 
-     * private void inputNum(int n){
-     * this.expectedResultsForInput[n - 1] = 0.91;
-     * }
-     * 
-     * public void err(Layer outputLayer){
-     * int length = outputLayer.layer.length;
-     * for(int i = 0; i < length; i++){
-     * error += 0.5*Math.pow((outputLayer.layer[i].output -
-     * this.expectedResultsForInput[i]), 2);
-     * }
-     * }
-     */
+    private void BackWardPropegation(){
+        
+     }
+  
+     public double[] loss(Layer outputLayer, int inputVal){
+        int length = outputLayer.layer.length;
+        double[] Loss = new double[length];
+        this.expectedResultsForInput[inputVal] = 1.0;
+        for(int i = 0; i < length; i++){
+            if(outputLayer.layer[i].output == 0){
+                totalLoss += -Math.log(0.0000001) * this.expectedResultsForInput[i];
+                Loss[i] = -Math.log(0.0000001) * this.expectedResultsForInput[i];
+            }
+            else{
+                totalLoss += -Math.log(outputLayer.layer[i].output) * this.expectedResultsForInput[i];
+                Loss[i] = -Math.log(outputLayer.layer[i].output) * this.expectedResultsForInput[i];
+            }
+        }
+        return Loss;
+    }
+
+    public void softMaxCrossEntropyDer(int batchSize, int cur){
+        int len1 = layers.length - 1;
+        int len2 = layers[len1].layer.length;
+        for(int j = 0; j < len2; j++)
+            this.CrossEntropyLoss_SoftMaxDerivativeMatrix[cur][j] = (layers[len1].layer[j].output - expectedResultsForInput[j]) / batchSize;
+        this.cur+=1;
+    }
+
+    public void trainNetwork(int networkSize, String path, int batchSize){
+        for(int i = 0; i < batchSize; i++)
+            this.ForwardPropegation(networkSize, cur, path);
+    }
+
+    public static void main(String[] args){
+        int[] NPL = new int[]{28, 40, 30, 20, 10};
+        Matrix<Boolean> m = Matrix.ImageToBooleanMatrix("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
+        Layer[] layers = Layer.hiddenLayers(NPL, m);
+        NeuralNetwork n = new NeuralNetwork(layers, 3);
+        n.trainNetwork(5, "C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png", 3);
+        for(int i = 0; i < n.CrossEntropyLoss_SoftMaxDerivativeMatrix.length; i++){
+            for(int j = 0; j < n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i].length; j++){
+                System.out.println(n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i][j]);
+            }
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+        }
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(n.totalLoss);
+    }
 }

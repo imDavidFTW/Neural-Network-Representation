@@ -18,7 +18,10 @@ public class Layer {
         Layer[] layers = new Layer[length];
         layers[0] = new Layer(m);
         for(int i = 1; i < length; i++){
-            layers[i] = new Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1]);
+            if(i == 1)
+                layers[i] = new Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1] * neuronsPerLayer[i - 1]);
+            else
+                layers[i] = new Layer(neuronsPerLayer[i], neuronsPerLayer[i - 1]);
         }
         return layers;
     }

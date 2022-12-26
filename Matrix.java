@@ -12,7 +12,7 @@ public class Matrix<T> {
     int n;
 
     public Matrix(int m, int n) {
-        matrix = (T[][]) new Object[m][n];
+        this.matrix = (T[][]) new Object[m][n];
         this.m = m;
         this.n = n;
     }
