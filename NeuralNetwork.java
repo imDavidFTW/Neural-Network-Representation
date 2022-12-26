@@ -112,7 +112,7 @@ public class NeuralNetwork {
         n.trainNetwork(5, "C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png", 3);
         for(int i = 0; i < n.CrossEntropyLoss_SoftMaxDerivativeMatrix.length; i++){
             for(int j = 0; j < n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i].length; j++){
-                //System.out.println(n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i][j]);
+                System.out.println(n.layers[layers.length - 1].layer[j].output);
             }
             System.out.println();
             System.out.println();
