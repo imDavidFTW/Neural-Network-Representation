@@ -1,3 +1,4 @@
+import java.util.SplittableRandom;
 public class Layer {
     public int numOfNeurons;
     public int prevLayerSize;
@@ -10,7 +11,8 @@ public class Layer {
         for(int i = 0; i < numOfNeurons; i++){
             this.layer[i] = new Neuron(prevLayerSize);
         }
-        this.bias = Math.random();
+        this.bias = new SplittableRandom().nextInt(-3, 3);
+        this.bias = this.bias * Math.random();
     }
 
     public static Layer[] hiddenLayers(int[] neuronsPerLayer, Matrix<Boolean> m){
