@@ -1,9 +1,11 @@
-import java.util.SplittableRandom;
+import java.util.concurrent.ThreadLocalRandom;
 public class Layer {
     public int numOfNeurons;
     public int prevLayerSize;
     public Neuron[] layer;
-    public double bias;
+    public double bias[];
+    private double weights[][];//makes a matrix of all weights
+    private double dweights[][];//makes a matrix of derivatives of all weights
     public Layer(int numOfNeurons, int prevLayerSize){
         this.numOfNeurons = numOfNeurons;
         this.prevLayerSize = prevLayerSize;
@@ -11,8 +13,7 @@ public class Layer {
         for(int i = 0; i < numOfNeurons; i++){
             this.layer[i] = new Neuron(prevLayerSize);
         }
-        this.bias = new SplittableRandom().nextInt(-3, 3);
-        this.bias = this.bias * Math.random();
+        this.bias = ThreadLocalRandom.current().doubles(numOfNeurons, 0, 1).toArray();
     }
 
     public static Layer[] hiddenLayers(int[] neuronsPerLayer, Matrix<Boolean> m){
@@ -32,7 +33,7 @@ public class Layer {
         this.layer = new Neuron[m.getRows()*m.getColumns()];
         this.numOfNeurons = m.getRows()*m.getColumns();
         this.prevLayerSize = 0;
-        this.bias = 0;
+        this.bias = new double[0];
         int counter = 0;
         for(int i = 0; i < m.getRows(); i++){
             for(int j = 0; j < m.getColumns(); j++){

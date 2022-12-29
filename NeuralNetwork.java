@@ -7,39 +7,52 @@
 import java.util.ArrayList; 
 public class NeuralNetwork {
     
-    public Layer[] layers;
-    public int networkSize;//gives how many layers the network has
-    public double totalLoss;// Here we use loss because of the softMax function 
-    private double[] expectedResultsForInput;
+    private double[][] weights;//keeps track of all weights in the network in one matrix
+    private double[][] dweights;//keeps track of derivatives of weights
+    private Layer[] layers;
+    private int networkSize;//gives how many layers the network has
     private int cur;//the current index we are at in the batch. Ex. batch size is 15 images. At cur == 8 we have done 8/15 forward propegations. Once we hit 15 we do back propegation
-    public double[][] Loss;//matrix containing the loss for each forward pass of a batch
-    public double[][] CrossEntropyLoss_SoftMaxDerivativeMatrix;//Cross entropy loss derivative for the back propegation
-    public ArrayList<Integer> testNums;
+    private ArrayList<Integer> testNums;//keeps track of the numbers that have been tested. This is needed for CrossEntropy loss with bacthes of images
+    private double[] expectedResultsForInput;//keeps track of the expected output neuron that should have a result of 1 and the others with a result of 0
+    private double totalLoss;// Here we use loss because of the softMax function 
+    private double[][] Loss;//matrix containing the loss for each forward pass of a batch
+    private double[][] CrossEntropyLoss_SoftMaxDerivativeMatrix;//Cross entropy loss derivative for the back propegation
+    private int batchSize;//number of images we will go through with a forward propegation before do backpropagation
+    private double[][] biases;//a list of the biases for each layer
+    private double[][] dbiases;//a list of bias derivatives used for back propagation
     public NeuralNetwork(Layer[] layers, int batchSize) {
         this.layers = layers;
+        this.networkSize = layers.length;
+        this.biases = new double[networkSize][];
+        for(int i = 1; i < networkSize; i++)
+        {
+            this.biases[i] = layers[i].bias;
+        }
         this.CrossEntropyLoss_SoftMaxDerivativeMatrix = new double[batchSize][layers[layers.length - 1].layer.length];
         this.Loss = new double[batchSize][layers[layers.length - 1].layer.length];
-        this.networkSize = layers.length;
+        this.networkSize = layers.length; 
         this.testNums = new ArrayList<>();
+        this.batchSize = batchSize;
         this.totalLoss = 0;
         this.cur = 0;
     }
 
     // For more clarification go to power point 7 I sent you
-    private void ForwardPropegation(int batchSize, int inputVal, String path) {
+    private void ForwardPropegation(int inputVal, String path) {
         // For the input of each neuron sum the weights times the outputs of the
         // previous neurons plus the bias
         // For the output of each neuron use the ReLu activation function 
         // If the value is positive it remains the same if it is negative the output is 0
         // This was changed for speed and efficiency when calculating the derivatives in back propegation
         // Then calculate your values for the output values for last layer of the NN (Softmax makes a vector of probabilites)
+        int count = 0; //keep track of bias index
         for (int i = 1; i < layers.length; i++) {
             for (Neuron n : layers[i].layer) {
                 Neuron[] prevNeuronLay = layers[i - 1].layer;
                 for (int j = 0; j < prevNeuronLay.length; j++) {
                     n.input += prevNeuronLay[j].output * n.weights[j];
                 }
-                n.input += layers[i - 1].bias;
+                n.input += layers[i].bias[count];
                 // Calculating output from the input, using the ReLu Function
                 n.output = n.input >= 0 ? n.input : 0;
             }
@@ -47,7 +60,7 @@ public class NeuralNetwork {
         // Implementing Softmax function on last layer
         double sumExpOutputs = 0;
         double max = 0;
-        Neuron[] lastNeuronLayer = layers[layers.length - 1].layer;
+        Neuron[] lastNeuronLayer = layers[this.networkSize - 1].layer;
         for (Neuron n : lastNeuronLayer) {
             if(n.input > max)
                 max = n.input;
@@ -64,11 +77,12 @@ public class NeuralNetwork {
             lastNeuronLayer[i].output = Math.exp(shrink) / sumExpOutputs;
         }
         this.expectedResultsForInput = new double[] {0, 0, 0, 0, 0, 
-            0, 0, 0, 0, 0};
+            0, 0, 0, 0, 0};//restting the list for further calculations with the loss
+                            // we need a new list so that we can have a list of lists with our expected results
         this.expectedResultsForInput[inputVal] = 1.0;
-        Loss[cur] = loss(this.layers[layers.length - 1]);
-        testNums.add(inputVal);
-        softMaxCrossEntropyDer(batchSize, cur);
+        Loss[cur] = loss(this.layers[this.networkSize - 1]);//calculating the loss of the network
+        testNums.add(inputVal);//adding to the list of values tested 
+        softMaxCrossEntropyDer(batchSize, cur);//calculating and saving the derivatives for the loss 
     }
 
     private void BackWardPropegation(){
@@ -101,10 +115,11 @@ public class NeuralNetwork {
         this.cur+=1;
     }
 
-    public void trainNetwork(int networkSize, String path, int batchSize){
+    public void trainNetwork(String path){
         for(int i = 0; i < batchSize; i++)
-            this.ForwardPropegation(networkSize, 0, path);
+            this.ForwardPropegation(0, path);
         this.totalLoss = this.totalLoss / batchSize;
+        this.BackWardPropegation();
     }
 
     public static void main(String[] args){
@@ -112,10 +127,10 @@ public class NeuralNetwork {
         Matrix<Boolean> m = Matrix.ImageToBooleanMatrix("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
         Layer[] layers = Layer.hiddenLayers(NPL, m);
         NeuralNetwork n = new NeuralNetwork(layers, 3);
-        n.trainNetwork(5, "C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png", 3);
+        n.trainNetwork("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
         for(int i = 0; i < n.CrossEntropyLoss_SoftMaxDerivativeMatrix.length; i++){
             for(int j = 0; j < n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i].length; j++){
-                //System.out.println(n.layers[layers.length - 1].layer[j].input);
+                System.out.println(n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i][j]);
             }
             System.out.println();
             System.out.println();
