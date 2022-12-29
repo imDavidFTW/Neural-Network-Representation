@@ -121,25 +121,4 @@ public class NeuralNetwork {
         this.totalLoss = this.totalLoss / batchSize;
         this.BackWardPropegation();
     }
-
-    public static void main(String[] args){
-        int[] NPL = new int[]{28, 1008, 1008, 456, 10};
-        Matrix<Boolean> m = Matrix.ImageToBooleanMatrix("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
-        Layer[] layers = Layer.hiddenLayers(NPL, m);
-        NeuralNetwork n = new NeuralNetwork(layers, 3);
-        n.trainNetwork("C:\\Users\\xdryn\\OneDrive\\Documents\\Desktop\\OOP\\Neural-Network-Representation\\DigitDataset\\0\\image9001.png");
-        for(int i = 0; i < n.CrossEntropyLoss_SoftMaxDerivativeMatrix.length; i++){
-            for(int j = 0; j < n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i].length; j++){
-                System.out.println(n.CrossEntropyLoss_SoftMaxDerivativeMatrix[i][j]);
-            }
-            System.out.println();
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println(n.totalLoss);
-    }
 }
